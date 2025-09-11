@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef enum {X, O} fill;
+typedef enum {EMPTY, X, O} fill;
 
 typedef struct Player
 {
