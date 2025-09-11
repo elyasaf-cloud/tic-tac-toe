@@ -4,6 +4,7 @@
 #include <string.h>
 
 const char markings[2] = {'X', 'O'};
+//const char fills[3] = {'e', 'X', 'O'};
 
 static bool check_sequence_0(const uint32_t board, const uint32_t sequence)
 {
@@ -33,7 +34,7 @@ player *create_player(const player_kind kind)
     player *new_player = malloc(sizeof(*new_player));
     if (!new_player)
     {
-        printf("malloc failed!\n");
+        printf("Malloc failed!\n");
         exit(1);
     }
     printf("\nEnter your name, player %c: ", markings[kind]);
@@ -65,11 +66,13 @@ void free_player(player *players[2])
     for (int i = 0; i < 2; i++)
     {
         if (players[i])
+        {
             free(players[i]);
+        }
     }
 }
 
-void make_turn(const player *current, uint32_t *board)
+/*void make_turn(const player *current, uint32_t *board)
 {
     //step 1, show current board, with numbers in the empty slots
     uint32_t is_marked = 1u << 9;
@@ -77,6 +80,52 @@ void make_turn(const player *current, uint32_t *board)
     {
         if (i % 3 == 0)
             printf("\n");
+        if(*board & is_marked) //checks if the slot has been initialized
+        {
+            printf("%c   ", markings[(*board & (is_marked >> 9)) != 0]);
+        }
+        else
+        {
+            printf("%d   ", i + 1); //start with 1
+        }
+    }
+    //step 2, The user selects a slot
+    int loc;
+    while (true) //waiting to valid input
+    {
+        printf("\n\n%s, in which slot number would you like to place your %c? "
+            ,current->name, markings[current->kind]);
+        if (scanf("%d", &loc) != 1 || loc < 1 || loc > 9)
+        {
+            printf("\nInvalid input");
+            clean_buffer();
+            continue;
+        }
+        if (*board & (1u << (loc + 8))) //checks if the slot has alreay been initialized
+        //8 and not 9, because the the starting number is 1
+        {
+            printf("\nOccupied slot");
+            clean_buffer();
+            continue;
+        }
+        
+        clean_buffer();
+        break;
+    }
+    //step 3, updating the board
+    *board |= current->kind << loc - 1;
+    *board |= 1u << (loc + 8); //indicates that the slot has been initialized
+}*/
+
+void make_turn(const player *current, filling *boardf[9])
+{
+    //step 1, show current board, with numbers in the empty slots
+    uint32_t is_marked = 1u << 9;
+    for (int i = 0; i < 9; i++, is_marked <<= 1)
+    {
+        if (i % 3 == 0)
+            printf("\n");
+        printf("%c   ", boardf[i] == EMPTY ? i : markings[(int)boardf[i]]);
         if(*board & is_marked) //checks if the slot has been initialized
         {
             printf("%c   ", markings[(*board & (is_marked >> 9)) != 0]);
@@ -148,6 +197,18 @@ bool check_victory(const player *current, const uint32_t board)
         }
     }
     return false;
+}
+
+bool is_board_full(const filling board[9])
+{
+    for (int i = 0; i < 9; i++)
+    {
+        if (board[i] == EMPTY)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void victory(const bool is_draw, player *winner, const player *loser, const uint32_t final_board)

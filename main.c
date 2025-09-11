@@ -22,7 +22,7 @@ int main()
     printf("\nLet's get started!\n\nThis time, %s starts\n", players[who_first]->name);
     while (true) //runs games
     {
-        uint32_t board = EMPTY_BOARD;
+        filling board[9] = {EMPTY}; 
         uint8_t whose_turn = who_first;
         while (true) //runs turns
         {
@@ -34,7 +34,7 @@ int main()
                 break;
             }
             //checks if the board is full
-            if ((board & FULL_BOARD) == FULL_BOARD)
+            if (is_board_full(board))
             {
                 //announcing a draw
                 victory(true, players[0], players[1], board);
@@ -75,6 +75,4 @@ int main()
         clean_screen(); //clear the terminal  
         printf("%s\n\nThis time, %s starts\n", TITLE, players[who_first]->name);
     }
-
-    return 0;
 }
