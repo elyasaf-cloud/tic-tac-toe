@@ -48,4 +48,4 @@ The repository also includes VS Code configuration files for easy building and d
 
 ---
 
-*This README was generated with with the help of AI assistance.*
+*This README was generated with with the help of an AI assistance.*
