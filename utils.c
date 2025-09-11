@@ -73,7 +73,7 @@ void free_player(player *players[2])
 
 void make_turn(const player *current, filling board[9])
 {
-    //step 1, show current board, with numbers in the empty slots, from 1 to 9
+    //step 1 - show current board, with numbers in the empty slots, from 1 to 9
     for (int i = 0; i < 9; i++)
     {
         if (i % 3 == 0)
@@ -84,7 +84,7 @@ void make_turn(const player *current, filling board[9])
         //the starting number is 1, therefore the slot number is i + 1
         //the adding of '0' turns int into char
     }
-    //step 2, The user selects a slot
+    //step 2 - The user selects a slot
     int loc;
     while (true) //waiting to valid input
     {
@@ -106,7 +106,7 @@ void make_turn(const player *current, filling board[9])
         clean_buffer();
         break;
     }
-    //step 3, updating the board
+    //step 3 - updating the board
     board[loc - 1] = current->kind + 1; //X for PLAYER_X, O for PLAYER_O
 }
 
