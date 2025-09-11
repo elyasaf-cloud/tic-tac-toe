@@ -1,0 +1,44 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "Build Tic-Tac-Toe",
+            "command": "/usr/bin/gcc",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "main.c",
+                "utils.c",
+                "-o",
+                "${workspaceFolder}/linux_tic-tac-toe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Build the entire tic-tac-toe program."
+        },
+        {
+            "label": "Run Tic-Tac-Toe",
+            "type": "shell",
+            "command": "./linux_tic-tac-toe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "clear": true
+            },
+            "detail": "Run the tic-tac-toe executable."
+        }
+    ]
+}
