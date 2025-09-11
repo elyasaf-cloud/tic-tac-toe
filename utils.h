@@ -2,16 +2,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef enum {PLAYER_X, PLAYER_O} player_kind;
+
 typedef enum {EMPTY, X, O} fill;
 
 typedef struct Player
 {
     char name[15];
-    fill kind;
+    player_kind kind;
     uint16_t victories;
 } player;
 
-player *create_player(const fill kind);
+player *create_player(const player_kind kind);
 
 void free_player(player *players[2]);
 

@@ -16,8 +16,8 @@ int main()
 {
     printf("%s\n", TITLE);
     player *players[2];
-    players[0] = create_player(X);
-    players[1] = create_player(O);
+    players[0] = create_player(PLAYER_X);
+    players[1] = create_player(PLAYER_O);
     uint8_t who_first = 0; //in the first game, X open
     printf("\nLet's get started!\n\nThis time, %s starts\n", players[who_first]->name);
     while (true) //runs games

@@ -28,7 +28,7 @@ static const player *show_leader(const player *player_x, const player *player_y)
     return NULL; //draw
 }
 
-player *create_player(const fill kind)
+player *create_player(const player_kind kind)
 {
     player *new_player = malloc(sizeof(*new_player));
     if (!new_player)
@@ -176,7 +176,7 @@ void victory(const bool is_draw, player *winner, const player *loser, const uint
             printf("e   ");
         }
     }
-    if (winner->kind == X)
+    if (winner->kind == PLAYER_X)
         show_leader(winner, loser);
     else
         show_leader(loser, winner);
