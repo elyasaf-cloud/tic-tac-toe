@@ -7,8 +7,6 @@
 //subject to the following condition:
 //For each bit, the bit 9 places to the left indicates whether it has already been initialized (1) or not (0)
 
-const uint32_t EMPTY_BOARD = 0;
-const uint32_t FULL_BOARD = 0b111111111 << 9;
 const char TITLE[] = "tic-tac-toe";
 
 
@@ -26,8 +24,8 @@ int main()
         uint8_t whose_turn = who_first;
         while (true) //runs turns
         {
-            make_turn(players[whose_turn], &board);
-            if(check_victory(players[whose_turn], board))
+            make_turn(players[whose_turn], board);
+            if(check_victory(board))
             {
                 //announcing the winner, updating the status of the victories
                 victory(false, players[whose_turn], players[whose_turn ^ 1], board);

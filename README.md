@@ -17,7 +17,7 @@ It was created as a practice project for working with multiple source files, man
 ## Purpose
 This project is primarily educational, focusing on:
 - Practicing modular programming with multiple files in C.  
-- Understanding bit-level board representation.  
+- Understanding bit-level board representation (only in the first version).
 - Using structures and functions effectively.
 
 ## Installation
