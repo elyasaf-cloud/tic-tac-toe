@@ -2,24 +2,28 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef enum {X, O} fill;
+typedef enum {PLAYER_X, PLAYER_O} player_kind;
+
+typedef enum {EMPTY, X, O} filling;
 
 typedef struct Player
 {
     char name[15];
-    fill kind;
+    player_kind kind;
     uint16_t victories;
 } player;
 
-player *create_player(const fill kind);
+player *create_player(const player_kind kind);
 
 void free_player(player *players[2]);
 
-void make_turn(const player *current, uint32_t *board);
+void make_turn(const player *current, filling board[9]);
 
-bool check_victory(const player *current, const uint32_t board);
+bool check_victory(const filling board[9]);
 
-void victory(const bool is_draw, player *winner, const player *loser, const uint32_t final_board);
+bool is_board_full(const filling board[9]);
+
+void victory(const bool is_draw, player *winner, const player *loser, const filling board[9]);
 
 void end(player *players[2]);
 

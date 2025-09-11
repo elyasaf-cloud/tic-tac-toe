@@ -7,8 +7,6 @@
 //subject to the following condition:
 //For each bit, the bit 9 places to the left indicates whether it has already been initialized (1) or not (0)
 
-const uint32_t EMPTY_BOARD = 0;
-const uint32_t FULL_BOARD = 0b111111111 << 9;
 const char TITLE[] = "tic-tac-toe";
 
 
@@ -16,25 +14,25 @@ int main()
 {
     printf("%s\n", TITLE);
     player *players[2];
-    players[0] = create_player(X);
-    players[1] = create_player(O);
+    players[0] = create_player(PLAYER_X);
+    players[1] = create_player(PLAYER_O);
     uint8_t who_first = 0; //in the first game, X open
     printf("\nLet's get started!\n\nThis time, %s starts\n", players[who_first]->name);
     while (true) //runs games
     {
-        uint32_t board = EMPTY_BOARD;
+        filling board[9] = {EMPTY}; 
         uint8_t whose_turn = who_first;
         while (true) //runs turns
         {
-            make_turn(players[whose_turn], &board);
-            if(check_victory(players[whose_turn], board))
+            make_turn(players[whose_turn], board);
+            if(check_victory(board))
             {
                 //announcing the winner, updating the status of the victories
                 victory(false, players[whose_turn], players[whose_turn ^ 1], board);
                 break;
             }
             //checks if the board is full
-            if ((board & FULL_BOARD) == FULL_BOARD)
+            if (is_board_full(board))
             {
                 //announcing a draw
                 victory(true, players[0], players[1], board);
@@ -75,6 +73,4 @@ int main()
         clean_screen(); //clear the terminal  
         printf("%s\n\nThis time, %s starts\n", TITLE, players[who_first]->name);
     }
-
-    return 0;
 }

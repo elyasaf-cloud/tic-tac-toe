@@ -4,15 +4,15 @@
 #include <string.h>
 
 const char markings[2] = {'X', 'O'};
+const char fills[3] = {'e', 'X', 'O'};
 
-static bool check_sequence_0(const uint32_t board, const uint32_t sequence)
+static bool check_sequence(const filling slot1, const filling slot2, const filling slot3)
 {
-    return (board & sequence) == 0;
-}
-
-static bool check_sequence_1(const uint32_t board, const uint32_t sequence)
-{
-    return (board & sequence) == sequence;
+    if (slot1 != EMPTY && slot1 == slot2 && slot2 == slot3)
+    {
+        return true;
+    }
+    return false;
 }
 
 static const player *show_leader(const player *player_x, const player *player_y)
@@ -28,12 +28,12 @@ static const player *show_leader(const player *player_x, const player *player_y)
     return NULL; //draw
 }
 
-player *create_player(const fill kind)
+player *create_player(const player_kind kind)
 {
     player *new_player = malloc(sizeof(*new_player));
     if (!new_player)
     {
-        printf("malloc failed!\n");
+        printf("Malloc failed!\n");
         exit(1);
     }
     printf("\nEnter your name, player %c: ", markings[kind]);
@@ -65,28 +65,26 @@ void free_player(player *players[2])
     for (int i = 0; i < 2; i++)
     {
         if (players[i])
+        {
             free(players[i]);
+        }
     }
 }
 
-void make_turn(const player *current, uint32_t *board)
+void make_turn(const player *current, filling board[9])
 {
-    //step 1, show current board, with numbers in the empty slots
-    uint32_t is_marked = 1u << 9;
-    for (int i = 0; i < 9; i++, is_marked <<= 1)
+    //step 1 - show current board, with numbers in the empty slots, from 1 to 9
+    for (int i = 0; i < 9; i++)
     {
         if (i % 3 == 0)
+        {
             printf("\n");
-        if(*board & is_marked) //checks if the slot has been initialized
-        {
-            printf("%c   ", markings[(*board & (is_marked >> 9)) != 0]);
         }
-        else
-        {
-            printf("%d   ", i + 1); //start with 1
-        }
+        printf("%c   ", board[i] == EMPTY ? (i + 1) + '0' : fills[board[i]]);
+        //the starting number is 1, therefore the slot number is i + 1
+        //the adding of '0' turns int into char
     }
-    //step 2, The user selects a slot
+    //step 2 - The user selects a slot
     int loc;
     while (true) //waiting to valid input
     {
@@ -98,59 +96,59 @@ void make_turn(const player *current, uint32_t *board)
             clean_buffer();
             continue;
         }
-        if (*board & (1u << (loc + 8))) //checks if the slot has alreay been initialized
-        //8 and not 9, because the the starting number is 1
+        if (board[loc - 1] != EMPTY) //checks if the slot has alreay been initialized
+        //the starting number is 1, therefore the index is loc - 1
         {
             printf("\nOccupied slot");
             clean_buffer();
             continue;
         }
-        
         clean_buffer();
         break;
     }
-    //step 3, updating the board
-    *board |= current->kind << loc - 1;
-    *board |= 1u << (loc + 8); //indicates that the slot has been initialized
+    //step 3 - updating the board
+    board[loc - 1] = current->kind + 1; //X for PLAYER_X, O for PLAYER_O
 }
 
-bool check_victory(const player *current, const uint32_t board)
+bool check_victory(const filling board[9])
 {
-    //defining the desired sequence, XXX or OOO
-    static const bool (*check_win[2])(uint32_t, uint32_t) = {check_sequence_0, check_sequence_1};
-    //testing straight sequences - balanced and perpendicular (each of them has 3 options)
-    //the test only occurs after verifying that the slots have been initialized
-    static const uint32_t straight_sequences[2] = {0b111, 0b1001001};
-    static const int multiplier[2] = {3, 1}; //turns 111 into 111000 and so on
-    for (int i = 0; i < 2; i++)
+    //checks the balanced sequences - 0 1 2, 3 4 5, and 6 7 8
+    for (int i = 0; i < 9; i += 3)
     {
-        for (int j = 0; j < 3; j++)
+        if (check_sequence(board[0 + i], board[1 + i], board[2 + i]))
         {
-            if (check_sequence_1(board, straight_sequences[i] << ((multiplier[i] * j) + 9)))
-            {
-                if (check_win[current->kind](board, straight_sequences[i] << (multiplier[i] * j)))
-                {
-                    return true;
-                }
-            }
+            return true;
         }
     }
-    //checking the diagonal sequences (2 options)
-    static const uint32_t diagonal_sequences[2] = {0b100010001, 0b001010100};
-    for (int i = 0; i < 2; i++)
+    //checks the vertical sequences - 0 3 6, 1 4 7, and 2 5 8
+    for (int i = 0; i < 3; i++)
     {
-        if (check_sequence_1(board, diagonal_sequences[i] << 9))
+        if (check_sequence(board[0 + i], board[3 + i], board[6 + i]))
         {
-                if (check_win[current->kind](board, diagonal_sequences[i]))
-                {
-                    return true;
-                }
+            return true;
         }
+    }
+    //checks the diagonal sequences - 0 4 8 and 2 4 6
+    if (check_sequence(board[0], board[4], board[8]) || check_sequence(board[2], board[4], board[6]))
+    {
+        return true;
     }
     return false;
 }
 
-void victory(const bool is_draw, player *winner, const player *loser, const uint32_t final_board)
+bool is_board_full(const filling board[9])
+{
+    for (int i = 0; i < 9; i++)
+    {
+        if (board[i] == EMPTY)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void victory(const bool is_draw, player *winner, const player *loser, const filling board[9])
 {
     if (is_draw)
     {
@@ -162,21 +160,15 @@ void victory(const bool is_draw, player *winner, const player *loser, const uint
         printf("\n%s defeated %s!\n", winner->name, loser->name);
     }
     //shows the final image, whith 'e' in the empty slots
-    uint32_t is_marked = 1 << 9;
-    for (int i = 0; i < 9; i++, is_marked <<= 1)
+    for (int i = 0; i < 9; i++)
     {
         if (i % 3 == 0)
+        {
             printf("\n");
-        if(final_board & is_marked)
-        {
-            printf("%c   ", markings[(final_board & (is_marked >> 9)) != 0]);
         }
-        else
-        {
-            printf("e   ");
-        }
+        printf("%c   ", fills[board[i]]);
     }
-    if (winner->kind == X)
+    if (winner->kind == PLAYER_X)
         show_leader(winner, loser);
     else
         show_leader(loser, winner);

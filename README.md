@@ -17,7 +17,7 @@ It was created as a practice project for working with multiple source files, man
 ## Purpose
 This project is primarily educational, focusing on:
 - Practicing modular programming with multiple files in C.  
-- Understanding bit-level board representation.  
+- Understanding bit-level board representation (only in the first version).
 - Using structures and functions effectively.
 
 ## Installation
@@ -48,4 +48,4 @@ The repository also includes VS Code configuration files for easy building and d
 
 ---
 
-*This README was generated with with the help of an AI assistance.*
+*This README was generated with the help of an AI assistance.*
