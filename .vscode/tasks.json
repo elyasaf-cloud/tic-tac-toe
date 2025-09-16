@@ -9,7 +9,8 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "main.c",
-                "utils.c",
+                "utils_UI.c",
+                "utils_logic.c",
                 "-o",
                 "${workspaceFolder}/linux_tic-tac-toe"
             ],

@@ -1,34 +1,59 @@
 #pragma once
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdint.h>
 
+
+enum {NUM_PLAYERS = 2, SEQUENCES_LENGTH = 3, POSSIBLE_SEQUENCES = 8 ,BOARD_SIZE = 9, NAME_LENGHT = 20};
+//I didn't use const, so that it would be possible to create arrays with these variables
+
 typedef enum {PLAYER_X, PLAYER_O} player_kind;
 
-typedef enum {EMPTY, X, O} filling;
+typedef enum {EMPTY, X, O, WIN_X, WIN_Y} filling;
 
 typedef struct Player
 {
-    char name[15];
+    char name[NAME_LENGHT];
     player_kind kind;
     uint16_t victories;
 } player;
 
+//UI functions
+
+void opening_screen();
+
+void show_details(player *players[NUM_PLAYERS], const uint8_t who_first);
+
+void get_name(player *new_player);
+
+void show_board(const filling board[BOARD_SIZE], const bool is_end);
+
+const int get_slot(const player *current, const filling board[BOARD_SIZE]);
+
+void show_leader(const player *player_x, const player *player_y);
+
+const char ask_to_continue();
+
+void end_games(player *players[NUM_PLAYERS]);
+
+//logic functions
+
 player *create_player(const player_kind kind);
 
-void free_player(player *players[2]);
+bool is_slot(const long loc);
 
-void make_turn(const player *current, filling board[9]);
+void update_board(const player *current, filling board[BOARD_SIZE], const int selecyed_slot);
 
-bool check_victory(const filling board[9]);
+bool check_victory(filling board[BOARD_SIZE]);
 
-bool is_board_full(const filling board[9]);
+bool is_board_full(const filling board[BOARD_SIZE]);
 
-void victory(const bool is_draw, player *winner, const player *loser, const filling board[9]);
+void update_victories(player *winner);
 
-void end(player *players[2]);
+const player *determines_winner(player *players[NUM_PLAYERS]);
 
-void clean_buffer();
-
-void clean_screen();
-
-
+void free_player(player **to_free);

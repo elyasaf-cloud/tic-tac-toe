@@ -1,76 +1,92 @@
 #include "utils.h"
-#include <stdio.h>
-#include <stdlib.h>
-
-//in this version, the board is represented by a binary number(uint32_t)
-//in this number, the right 9 bits indicate whether a slot is marked with an X (0) or an O (1)
-//subject to the following condition:
-//For each bit, the bit 9 places to the left indicates whether it has already been initialized (1) or not (0)
-
-const char TITLE[] = "tic-tac-toe";
 
 
 int main()
 {
-    printf("%s\n", TITLE);
-    player *players[2];
+    opening_screen();
+    //creates two players
+    player *players[NUM_PLAYERS];
     players[0] = create_player(PLAYER_X);
+    if (!players[0])
+    {
+        printf("Failed to allocate memory for player\n");
+        exit(1);
+    }
+    get_name(players[0]); //gets a name from the player
+    if (strcmp(players[0]->name, "q") == 0 || strcmp(players[0]->name, "Q") == 0)
+    {
+        return 0;
+    }
     players[1] = create_player(PLAYER_O);
+    if (!players[1])
+    {
+        printf("Failed to allocate memory for player\n");
+        free_player(&players[0]);
+        exit(1);
+    }
+    get_name(players[1]);
+    if (strcmp(players[1]->name, "q") == 0 || strcmp(players[1]->name, "Q") == 0)
+    {
+        free_player(&players[0]);
+        free_player(&players[1]);
+        return 0;
+    }
+
     uint8_t who_first = 0; //in the first game, X open
-    printf("\nLet's get started!\n\nThis time, %s starts\n", players[who_first]->name);
     while (true) //runs games
     {
-        filling board[9] = {EMPTY}; 
+        show_details(players, who_first);
+        filling board[BOARD_SIZE] = {EMPTY};
         uint8_t whose_turn = who_first;
         while (true) //runs turns
         {
-            make_turn(players[whose_turn], board);
+            show_board(board, false);
+            int loc = get_slot(players[whose_turn], board);
+            if (loc == -1) //the user press 'q'
+            {
+                //clear the screen, announcing the final winner, free the memory, and ends the running
+                end_games(players);
+                free_player(&players[0]);
+                free_player(&players[1]);
+                return 0;
+            }
+            update_board(players[whose_turn], board, loc);
             if(check_victory(board))
+            //checks if a victory has been achieved, and marks the winning streak
             {
                 //announcing the winner, updating the status of the victories
-                victory(false, players[whose_turn], players[whose_turn ^ 1], board);
+                printf("\n%s defeated %s!\n",players[whose_turn]->name, players[whose_turn ^ 1]->name);
+                show_board(board, true);
+                update_victories(players[whose_turn]);
+                show_leader(players[0], players[1]);
                 break;
             }
             //checks if the board is full
             if (is_board_full(board))
             {
                 //announcing a draw
-                victory(true, players[0], players[1], board);
+                printf("\nDraw!\n");
+                show_board(board, true);
+                show_leader(players[0], players[1]);
                 break;
             }
             whose_turn ^= 1;
         }
+        
         //continues to a new game / ends the program
-        while (true) //waiting to valid input
+        const char ans = ask_to_continue(); //return 'y', 'n' or 'q'
+        if (ans == 'y')
         {
-            printf("\nWant to start another game? (answer y/n): ");
-            char ans = getchar();
-            clean_buffer();
-            ans |= 32; //converts to lowercase
-            if (ans == 'y')
-            {
-                break;
-            }
-            else if (ans == 'n')
-            {
-                //clear the screen, announcing the final winner, free the memory, and ends the running
-                clean_screen();
-                printf("%s\n", TITLE);
-                end(players);
-                free_player(players);
-                #ifdef _WIN32 //for windows
-                    printf("Press any key to exit");
-                    getchar();
-                #endif
-                return 0;
-            }
-            else
-            {
-                printf("\nInvalid input\n");
-            }
+            who_first ^= 1; //each game a different player starts
+            continue;
         }
-        who_first ^= 1; //each game a different player starts
-        clean_screen(); //clear the terminal  
-        printf("%s\n\nThis time, %s starts\n", TITLE, players[who_first]->name);
+        else
+        {
+            //clear the screen, announcing the final winner, free the memory, and ends the running
+            end_games(players);
+            free_player(&players[0]);
+            free_player(&players[1]);
+            return 0;
+        }
     }
 }
