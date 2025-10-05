@@ -8,12 +8,16 @@
 #include <stdint.h>
 
 
-enum {NUM_PLAYERS = 2, SEQUENCES_LENGTH = 3, POSSIBLE_SEQUENCES = 8 ,BOARD_SIZE = 9, NAME_LENGHT = 20};
+extern const char MARKINGS[2];
+
+enum {NUM_PLAYERS = 2, SEQUENCES_LENGTH = 3, POSSIBLE_SEQUENCES = 8 ,BOARD_SIZE = 9, NAME_LENGHT = 32};
 //I didn't use const, so that it would be possible to create arrays with these variables
 
 typedef enum {PLAYER_X, PLAYER_O} player_kind;
 
 typedef enum {EMPTY, X, O, WIN_X, WIN_Y} filling;
+
+typedef enum {YES = 'y', NO = 'n', QUIT = 'q'} answer;
 
 typedef struct Player
 {
@@ -26,6 +30,8 @@ typedef struct Player
 
 void opening_screen();
 
+void print_data_message(const char *message, bool is_succesed);
+
 void show_details(player *players[NUM_PLAYERS], const uint8_t who_first);
 
 void get_name(player *new_player);
@@ -36,13 +42,17 @@ const int get_slot(const player *current, const filling board[BOARD_SIZE]);
 
 void show_leader(const player *player_x, const player *player_y);
 
-const char ask_to_continue();
+answer ask_user(const char *question);
 
 void end_games(player *players[NUM_PLAYERS]);
 
+void windows_end();
+
 //logic functions
 
-player *create_player(const player_kind kind);
+bool is_allocate_success(player *players[NUM_PLAYERS]);
+
+void create_player(player *new_player, const player_kind kind);
 
 bool is_slot(const long loc);
 
@@ -57,3 +67,11 @@ void update_victories(player *winner);
 const player *determines_winner(player *players[NUM_PLAYERS]);
 
 void free_player(player **to_free);
+
+//file functions
+
+bool is_file_exists();
+
+bool get_players_data_from_file(player *players[NUM_PLAYERS]);
+
+bool set_players_data_to_file(player *players[NUM_PLAYERS]);

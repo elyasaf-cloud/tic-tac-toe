@@ -1,6 +1,7 @@
 #include "utils.h"
 
 
+
 static bool check_sequence(const filling slot1, const filling slot2, const filling slot3)
 {
     if (slot1 != EMPTY && slot1 == slot2 && slot2 == slot3)
@@ -20,28 +21,44 @@ static void mark_winning_sequence(filling board[BOARD_SIZE], uint8_t loc_1, uint
     board[loc_3] += 2;
 }
 
-player *create_player(const player_kind kind)
+bool is_allocate_success(player *players[NUM_PLAYERS])
 {
-    //allocates memory for a new player
-    //enters parameters into its fields
-    //returns NULL if faild
-    player *new_player = NULL;
+    //allocates memory for players
     static const uint8_t MAX_RETRIES = 3;
-    for (uint8_t retry_count = 0; retry_count < MAX_RETRIES; retry_count++)
+    for (int i = 0; i < NUM_PLAYERS; i++)
     {
-        new_player = malloc(sizeof(*new_player));
-        if (new_player)
+        for (uint8_t retry_count = 0; retry_count < MAX_RETRIES; retry_count++)
         {
-            break;
+            players[i] = malloc(sizeof(player));
+            if (players[i])
+            {
+                break;
+            }
+        }
+        if (!players[i])
+        {
+            //free previously allocated 
+            for (int j = 0; j < i; j++)
+            {
+                free(players[j]);
+            }
+            return false;
         }
     }
+    return true;
+}
+
+void create_player(player *new_player, const player_kind kind)
+{
+    //enters parameters into player's fields
     if (!new_player)
     {
-        return NULL;
+        return;
     }
     new_player->kind = kind;
     new_player->victories = 0;
-    return new_player;
+    //enters a default name
+    snprintf(new_player->name, NAME_LENGHT, "player %c", MARKINGS[new_player->kind]);
 }
 
 void free_player(player **to_free)
@@ -60,7 +77,7 @@ bool is_slot(const long loc)
 
 void update_board(const player *current, filling board[BOARD_SIZE], const int selected_slot)
 {
-    board[selected_slot] = current->kind + 1; //X for PLAYER_X, O for PLAYER_O
+    board[selected_slot] = (current->kind == PLAYER_X) ? X : O;
 }
 
 bool check_victory(filling board[BOARD_SIZE])

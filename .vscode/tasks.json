@@ -11,6 +11,7 @@
                 "main.c",
                 "utils_UI.c",
                 "utils_logic.c",
+                "utils_file.c",
                 "-o",
                 "${workspaceFolder}/linux_tic-tac-toe"
             ],

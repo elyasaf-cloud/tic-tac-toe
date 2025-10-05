@@ -1,9 +1,9 @@
 #include "utils.h"
 
 
+const char MARKINGS[2] = {'X', 'O'};
 static const char TITLE[] = "tic-tac-toe | press q at any step to quit";
 static const char END_TITLE[] = "tic-tac-toe | game over";
-static const char MARKINGS[2] = {'X', 'O'};
 static const char FILLS[5] = {'e', 'X', 'O', 'X', 'O'};
 
 static void announces_final_result(const player *final_winner)
@@ -37,38 +37,50 @@ void opening_screen()
     printf("%s\n", TITLE);
 }
 
+void print_data_message(const char *message, bool is_succesed)
+{
+    if (is_succesed)
+    {
+        printf("\nData %s successfully\n\n", message);
+    }
+    else
+    {
+        printf("\nData %s error\n\n", message);
+    }
+}
+
 void show_details(player *players[NUM_PLAYERS], const uint8_t who_first)
 {
     clean_screen();
     printf("%s\n\n", TITLE);
-    printf("%s is X\n\n", players[0]->name);
-    printf("%s is O\n\n", players[1]->name);
+    printf("%s is X, with %d vicyories\n\n", players[0]->name, players[0]->victories);
+    printf("%s is O, with %d vicyories\n\n", players[1]->name, players[1]->victories);
     printf("Let's get started!\n\n");
     printf("This time, %s starts\n", players[who_first]->name);
 }
 
 void get_name(player *new_player)
 {
+    char name[NAME_LENGHT];
     printf("\nEnter your name, player %c: ", MARKINGS[new_player->kind]);
-    if (fgets(new_player->name, NAME_LENGHT, stdin) != NULL 
-    && new_player->name[0] != '\n'
-    && new_player->name[0] != '\0')
+    if (fgets(name, NAME_LENGHT, stdin) != NULL 
+    && name[0] != '\n'
+    && name[0] != '\0')
     //checks if the input is valid and not empty
     {
-        size_t len = strlen(new_player->name);
-        if (new_player->name[len - 1] == '\n')
+        size_t len = strlen(name);
+        if (name[len - 1] == '\n')
         {
-            new_player->name[len - 1] = '\0';
+            name[len - 1] = '\0';
         }
         else //the input was too long
         {
             clean_buffer();
         }
+        strcpy(new_player->name, name);
     }
-    else //enters a default name
-    {
-        snprintf(new_player->name, NAME_LENGHT, "player %c", MARKINGS[new_player->kind]);
-    }
+    //else
+    //the player will remain with the default name
 }
 
 void show_board(const filling board[BOARD_SIZE], const bool is_end)
@@ -164,12 +176,12 @@ void show_leader(const player *player_x, const player *player_o)
          player_o->name, MARKINGS[player_o->kind], player_o->victories);
 }
 
-const char ask_to_continue()
+answer ask_user(const char *question)
 {
     char input[8];
     while (true) //waiting to valid input ('y','n' or 'q')
     {
-        printf("\nWant to start another game? (answer y/n): ");
+        printf("\n%s? (answer y/n): ", question);
         if (!fgets(input, sizeof(input), stdin))
         {
             printf("\nError reading input\n");
@@ -206,8 +218,10 @@ void end_games(player *players[NUM_PLAYERS])
     show_leader(players[0], players[1]);
     const player *winner = determines_winner(players);
     announces_final_result(winner);
-    #ifdef _WIN32 //for windows
-        printf("Press any key to exit");
-        getchar();
-    #endif
+}
+
+void windows_end()
+{
+    printf("Press any key to exit");
+    getchar();
 }
